@@ -1,0 +1,42 @@
+{
+  "name": "2026-your-saju",
+  "version": "1.0.0",
+  "description": "2026 신년 사주 - 병오년 무료 사주풀이",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "사주",
+    "운세",
+    "2026",
+    "병오년"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.26",
+    "korean-lunar-calendar": "^0.3.6",
+    "lucide-react": "^0.562.0",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.6.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.1",
+    "postcss": "^8.5.6",
+    "typescript": "^5.9.3"
+  }
+}
