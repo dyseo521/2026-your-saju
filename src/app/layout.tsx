@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 
 export const viewport: Viewport = {
@@ -82,6 +83,9 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* Google Analytics */}
+        <GoogleAnalytics gaId="G-2784VXQN82" />
+
         {/* Cosmic Background */}
         <div className="cosmic-bg" />
 
