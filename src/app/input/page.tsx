@@ -16,10 +16,12 @@ import {
   HelpCircle,
   Flame
 } from 'lucide-react'
+import LoadingOverlay from '@/components/loading/LoadingOverlay'
 
 export default function InputPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     year: new Date().getFullYear() - 25,
     month: 1,
@@ -33,8 +35,13 @@ export default function InputPage() {
     // Store in sessionStorage for the result page
     sessionStorage.setItem('sajuInput', JSON.stringify(formData))
 
+    // Show loading overlay
+    setIsLoading(true)
+  }, [formData])
+
+  const handleLoadingComplete = useCallback(() => {
     router.push('/result')
-  }, [formData, router])
+  }, [router])
 
   const canProceed = () => {
     switch (step) {
@@ -65,9 +72,13 @@ export default function InputPage() {
   ]
 
   return (
-    <main className="flex-1 flex flex-col">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-stone-800">
+    <>
+      {/* Loading Overlay */}
+      <LoadingOverlay isVisible={isLoading} onComplete={handleLoadingComplete} />
+
+      <main className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-stone-800">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-stone-400 hover:text-stone-200 transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -334,6 +345,7 @@ export default function InputPage() {
           </button>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   )
 }
