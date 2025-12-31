@@ -1,7 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ExternalLink, ArrowLeft, Sparkles } from 'lucide-react'
+
+// 쿠팡 파트너스 간편 링크
+const COUPANG_AFFILIATE_LINK = 'https://link.coupang.com/a/djBn85'
 
 const LOADING_MESSAGES = [
   { text: '운명의 문을 여는 중...', subtext: 'Opening the gates of destiny' },
@@ -190,9 +194,29 @@ export default function LoadingOverlay({
 }) {
   const [messageIndex, setMessageIndex] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [phase, setPhase] = useState<'loading' | 'coupang'>('loading')
+
+  // 쿠팡 버튼 클릭 핸들러
+  const handleCoupangClick = useCallback(() => {
+    // 쿠팡 새 탭으로 열기
+    window.open(COUPANG_AFFILIATE_LINK, '_blank', 'noopener,noreferrer')
+    // 결과 페이지로 이동
+    onComplete?.()
+  }, [onComplete])
+
+  // 뒤로가기 핸들러
+  const handleBack = useCallback(() => {
+    window.history.back()
+  }, [])
 
   useEffect(() => {
-    if (!isVisible) return
+    if (!isVisible) {
+      // Reset state when hidden
+      setPhase('loading')
+      setProgress(0)
+      setMessageIndex(0)
+      return
+    }
 
     // Cycle through messages
     const messageInterval = setInterval(() => {
@@ -205,7 +229,8 @@ export default function LoadingOverlay({
         if (prev >= 100) {
           clearInterval(progressInterval)
           clearInterval(messageInterval)
-          setTimeout(() => onComplete?.(), 500)
+          // 로딩 완료 후 쿠팡 인터스티셜로 전환
+          setTimeout(() => setPhase('coupang'), 500)
           return 100
         }
         return prev + 2
@@ -216,7 +241,7 @@ export default function LoadingOverlay({
       clearInterval(messageInterval)
       clearInterval(progressInterval)
     }
-  }, [isVisible, onComplete])
+  }, [isVisible])
 
   // Generate embers
   const embers = Array.from({ length: 30 }, (_, i) => ({
@@ -252,25 +277,95 @@ export default function LoadingOverlay({
             }}
           />
 
-          {/* Animated noise texture */}
-          <motion.div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            }}
-            animate={{ opacity: [0.15, 0.25, 0.15] }}
-            transition={{ duration: 4, repeat: Infinity }}
-          />
+          {/* 쿠팡 인터스티셜 화면 */}
+          {phase === 'coupang' && (
+            <motion.div
+              className="relative z-10 flex flex-col items-center px-6 max-w-lg mx-auto text-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* 아이콘 */}
+              <motion.div
+                className="mb-6 p-5 rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Sparkles className="w-12 h-12 text-orange-400" />
+              </motion.div>
 
-          {/* Ember particles */}
-          <div className="absolute inset-0">
-            {embers.map((ember) => (
-              <Ember key={ember.id} {...ember} />
-            ))}
-          </div>
+              {/* 메인 텍스트 */}
+              <h2 className="text-2xl md:text-3xl font-bold text-stone-100 mb-3">
+                사주 분석이 완료되었습니다!
+              </h2>
+              <p className="text-stone-400 mb-8">
+                아래 버튼을 눌러 쿠팡을 방문하시면<br />
+                결과를 확인하실 수 있습니다.
+              </p>
 
-          {/* Central content */}
-          <div className="relative flex flex-col items-center">
+              {/* 쿠팡 버튼 */}
+              <motion.button
+                onClick={handleCoupangClick}
+                className="w-full py-4 px-6 rounded-2xl font-bold text-lg text-white
+                  bg-gradient-to-r from-red-600 via-orange-500 to-amber-500
+                  hover:from-red-500 hover:via-orange-400 hover:to-amber-400
+                  shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40
+                  transition-all duration-300 flex items-center justify-center gap-3"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span>쿠팡 방문하고 결과보기</span>
+                <ExternalLink className="w-5 h-5" />
+              </motion.button>
+
+              {/* 뒤로가기 안내 */}
+              <button
+                onClick={handleBack}
+                className="mt-4 flex items-center gap-2 text-stone-500 hover:text-stone-300 transition-colors text-sm"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>원치 않을 경우 뒤로가기</span>
+              </button>
+
+              {/* 파트너스 고지 문구 */}
+              <div className="mt-8 p-4 rounded-xl bg-stone-800/50 border border-stone-700/50">
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
+                  이에 따른 일정액의 수수료를 제공받습니다.
+                </p>
+              </div>
+
+              {/* 년도 표시 */}
+              <div className="mt-6 flex items-center gap-2">
+                <span className="text-sm text-stone-600">丙午年</span>
+                <span className="w-1 h-1 rounded-full bg-gold-500" />
+                <span className="text-sm text-gold-500/80">2026</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 로딩 화면 */}
+          {phase === 'loading' && (
+            <>
+              {/* Animated noise texture */}
+              <motion.div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                }}
+                animate={{ opacity: [0.15, 0.25, 0.15] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+
+              {/* Ember particles */}
+              <div className="absolute inset-0">
+                {embers.map((ember) => (
+                  <Ember key={ember.id} {...ember} />
+                ))}
+              </div>
+
+              {/* Central content */}
+              <div className="relative flex flex-col items-center">
             {/* Outer rotating ring - Bagua symbols */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-64 h-64">
@@ -399,6 +494,8 @@ export default function LoadingOverlay({
               <span className="text-sm text-gold-500/80">2026</span>
             </motion.div>
           </div>
+            </>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
