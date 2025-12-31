@@ -9,6 +9,7 @@ import {
   BRANCH_ANIMAL_EMOJI,
   ELEMENTS,
   STEM_INTERPRETATIONS,
+  YEARLY_FORTUNE_2026,
   type Element,
 } from './constants'
 
@@ -39,6 +40,12 @@ export interface SajuResult {
     career: string
     relationship: string
     health: string
+  }
+  yearlyFortune: {
+    title: string
+    summary: string
+    description: string
+    advice: string
   }
   birthInfo: {
     year: number
@@ -310,6 +317,10 @@ export function calculateSaju(
   const elements = analyzeElements(pillarsArray)
   const interpretation = generateInterpretation(dayPillar, elements, gender)
 
+  // 일간 기준 2026년 운세
+  const dayStemChar = dayPillar.stemChar as keyof typeof YEARLY_FORTUNE_2026
+  const yearlyFortune = YEARLY_FORTUNE_2026[dayStemChar]
+
   return {
     pillars: {
       year: yearPillar,
@@ -319,6 +330,7 @@ export function calculateSaju(
     },
     elements,
     interpretation,
+    yearlyFortune,
     birthInfo: { year, month, day, hour, isLunar, gender },
   }
 }

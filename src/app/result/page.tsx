@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -15,7 +15,10 @@ import {
   Activity,
   Flame,
   RotateCcw,
-  ExternalLink
+  Check,
+  Copy,
+  Quote,
+  Star
 } from 'lucide-react'
 import { calculateSaju, getElementPercentages, type SajuResult } from '@/lib/saju/calculator'
 import { ELEMENTS, MONTHLY_FORTUNE_2026 } from '@/lib/saju/constants'
@@ -177,6 +180,113 @@ function PillarCard({ title, pillar, delay = 0 }: {
   )
 }
 
+// 2026 Fortune Summary Component
+function FortuneSummary({ fortune }: { fortune: SajuResult['yearlyFortune'] }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  // 설명 텍스트를 문단으로 분리
+  const paragraphs = fortune.description.split('\n\n').filter(p => p.trim())
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="relative overflow-hidden"
+    >
+      {/* 메인 카드 */}
+      <div className="card-mystical glow-fire">
+        <div className="pattern-overlay" />
+
+        {/* 헤더: 타이틀 + 요약 */}
+        <div className="relative z-10">
+          {/* 상단 배지 */}
+          <div className="flex items-center justify-center mb-4">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30">
+              <Star className="w-4 h-4 text-gold-400" />
+              <span className="text-sm text-gold-400 font-medium">2026년 병오년 운세</span>
+              <Star className="w-4 h-4 text-gold-400" />
+            </span>
+          </div>
+
+          {/* 타이틀 */}
+          <h2
+            className="text-2xl sm:text-3xl font-bold text-center mb-3"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            <span className="text-fire-gradient">{fortune.title}</span>
+          </h2>
+
+          {/* 요약 키워드 */}
+          <p className="text-center text-stone-300 text-lg mb-6">
+            {fortune.summary}
+          </p>
+
+          {/* 구분선 */}
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold-500/50" />
+            <Flame className="w-5 h-5 text-orange-400" />
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold-500/50" />
+          </div>
+
+          {/* 본문 - 첫 번째 문단은 항상 표시 */}
+          <div className="space-y-4">
+            <p className="text-stone-300 leading-relaxed text-base">
+              {paragraphs[0]}
+            </p>
+
+            {/* 나머지 문단 - 펼치기/접기 */}
+            {paragraphs.length > 1 && (
+              <>
+                <motion.div
+                  initial={false}
+                  animate={{
+                    height: isExpanded ? 'auto' : 0,
+                    opacity: isExpanded ? 1 : 0
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  {paragraphs.slice(1).map((paragraph, i) => (
+                    <p key={i} className="text-stone-300 leading-relaxed text-base mb-4 last:mb-0">
+                      {paragraph}
+                    </p>
+                  ))}
+                </motion.div>
+
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="w-full flex items-center justify-center gap-2 py-2 text-sm text-stone-400 hover:text-stone-200 transition-colors"
+                >
+                  <span>{isExpanded ? '접기' : '자세히 보기'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* 조언 카드 */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-6 p-4 rounded-xl bg-gradient-to-r from-gold-500/10 to-orange-500/10 border border-gold-500/20"
+          >
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-gold-500/20 flex-shrink-0">
+                <Quote className="w-4 h-4 text-gold-400" />
+              </div>
+              <p className="text-gold-200 text-sm leading-relaxed italic">
+                &ldquo;{fortune.advice}&rdquo;
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 // Monthly Fortune Component
 function MonthlyFortune() {
   const [expanded, setExpanded] = useState(false)
@@ -245,49 +355,10 @@ function InterpretationCard({ icon: Icon, title, content, color, delay = 0 }: {
   )
 }
 
-// Coupang Partner Banner
-function CoupangBanner({ element }: { element: keyof typeof ELEMENTS }) {
-  const recommendations = {
-    wood: { text: '성장을 위한 추천 도서', emoji: '📚' },
-    fire: { text: '열정을 불태울 아이템', emoji: '🔥' },
-    earth: { text: '안정을 주는 인테리어', emoji: '🏡' },
-    metal: { text: '결단력을 높이는 아이템', emoji: '⚔️' },
-    water: { text: '지혜를 넓히는 도서', emoji: '📖' },
-  }
-
-  const rec = recommendations[element]
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.5 }}
-      className="card-mystical border-gold-500/30"
-    >
-      <div className="pattern-overlay" />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{rec.emoji}</span>
-          <div>
-            <div className="text-sm text-gold-500 font-medium">{rec.text}</div>
-            <div className="text-xs text-stone-500">쿠팡 파트너스 제휴</div>
-          </div>
-        </div>
-        <a
-          href="#"
-          className="flex items-center gap-1 text-sm text-gold-400 hover:text-gold-300 transition-colors"
-        >
-          보러가기
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      </div>
-    </motion.div>
-  )
-}
-
 export default function ResultPage() {
   const [result, setResult] = useState<SajuResult | null>(null)
   const [loading, setLoading] = useState(true)
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared'>('idle')
 
   useEffect(() => {
     const stored = sessionStorage.getItem('sajuInput')
@@ -305,6 +376,82 @@ export default function ResultPage() {
     }
     setLoading(false)
   }, [])
+
+  // execCommand 폴백 (레거시 브라우저용)
+  const execCommandFallback = useCallback((text: string) => {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-9999px'
+    textarea.style.top = '-9999px'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+
+    try {
+      const success = document.execCommand('copy')
+      if (success) {
+        setShareStatus('copied')
+        setTimeout(() => setShareStatus('idle'), 2000)
+      } else {
+        alert('공유 링크를 복사하지 못했습니다. URL을 직접 복사해주세요: ' + window.location.origin)
+      }
+    } catch {
+      alert('공유 링크를 복사하지 못했습니다. URL을 직접 복사해주세요: ' + window.location.origin)
+    } finally {
+      document.body.removeChild(textarea)
+    }
+  }, [])
+
+  // 클립보드 복사 (Clipboard API + execCommand 폴백)
+  const copyToClipboard = useCallback((text: string) => {
+    // Clipboard API 지원 여부 및 보안 컨텍스트 확인
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          setShareStatus('copied')
+          setTimeout(() => setShareStatus('idle'), 2000)
+        })
+        .catch(() => {
+          execCommandFallback(text)
+        })
+    } else {
+      // 폴백: execCommand
+      execCommandFallback(text)
+    }
+  }, [execCommandFallback])
+
+  // 공유하기 기능
+  const handleShare = useCallback(async () => {
+    if (!result) return
+
+    const shareData = {
+      title: '2026 신년 사주 - 나의 사주팔자',
+      text: `🔥 나의 2026년 사주 결과\n\n` +
+        `📅 ${result.birthInfo.year}년 ${result.birthInfo.month}월 ${result.birthInfo.day}일생\n` +
+        `🐴 ${result.pillars.year.animal}띠\n` +
+        `✨ ${result.interpretation.dayStem.name} (${result.interpretation.dayStem.symbol})\n` +
+        `🎯 키워드: ${result.interpretation.dayStem.keywords.join(', ')}\n\n` +
+        `나도 2026년 사주 보러가기 👇`,
+      url: window.location.origin,
+    }
+
+    // Web Share API 지원 확인 (주로 모바일)
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData)
+        setShareStatus('shared')
+      } catch (err) {
+        // 사용자가 취소한 경우
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(shareData.text + '\n' + shareData.url)
+        }
+      }
+    } else {
+      // 폴백: 클립보드에 복사
+      copyToClipboard(shareData.text + '\n' + shareData.url)
+    }
+  }, [result, copyToClipboard])
 
   if (loading) {
     return (
@@ -332,7 +479,7 @@ export default function ResultPage() {
     )
   }
 
-  const { pillars, elements, interpretation, birthInfo } = result
+  const { pillars, elements, interpretation, yearlyFortune, birthInfo } = result
 
   return (
     <main className="flex-1">
@@ -347,8 +494,15 @@ export default function ResultPage() {
             <Flame className="w-5 h-5 text-orange-500" />
             <span className="font-bold text-stone-200">분석 결과</span>
           </div>
-          <button className="p-2 rounded-full hover:bg-stone-800 transition-colors">
-            <Share2 className="w-5 h-5 text-stone-400" />
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-full hover:bg-stone-800 transition-colors"
+          >
+            {shareStatus === 'copied' ? (
+              <Check className="w-5 h-5 text-green-400" />
+            ) : (
+              <Share2 className="w-5 h-5 text-stone-400" />
+            )}
           </button>
         </div>
       </header>
@@ -372,6 +526,9 @@ export default function ResultPage() {
               <span className="text-fire-gradient">나의 사주팔자</span>
             </h1>
           </motion.div>
+
+          {/* 2026 Fortune Summary - 가장 먼저 표시 */}
+          <FortuneSummary fortune={yearlyFortune} />
 
           {/* Four Pillars */}
           <div className="card-mystical">
@@ -466,9 +623,6 @@ export default function ResultPage() {
           {/* Monthly Fortune */}
           <MonthlyFortune />
 
-          {/* Coupang Partner Banner */}
-          <CoupangBanner element={elements.dominant} />
-
           {/* Actions */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -476,10 +630,27 @@ export default function ResultPage() {
             transition={{ delay: 1.8 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <button className="flex-1 btn-fire">
+            <button
+              onClick={handleShare}
+              className="flex-1 btn-fire"
+            >
               <span className="flex items-center justify-center gap-2">
-                <Share2 className="w-5 h-5" />
-                결과 공유하기
+                {shareStatus === 'copied' ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    복사됨!
+                  </>
+                ) : shareStatus === 'shared' ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    공유됨!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-5 h-5" />
+                    결과 공유하기
+                  </>
+                )}
               </span>
             </button>
             <Link href="/input" className="flex-1">
