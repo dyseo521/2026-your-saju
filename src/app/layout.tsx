@@ -10,6 +10,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://saju.enn.kr'),
   title: {
     default: '2026 신년 사주 | 병오년 무료 사주풀이',
     template: '%s | 2026 신년 사주'
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: 'https://2026-your-saju.com',
+    url: 'https://saju.enn.kr',
     siteName: '2026 신년 사주',
     title: '2026 신년 사주 - 나의 병오년 운세는?',
     description: '2026년 병오년, 당신의 사주를 무료로 확인하세요. 불의 해, 새로운 시작을 위한 운세 가이드.',
