@@ -427,13 +427,12 @@ export default function ResultPage() {
 
     const shareData = {
       title: '2026 신년 사주 - 나의 사주팔자',
-      text: `🔥 나의 2026년 사주 결과\n\n` +
-        `📅 ${result.birthInfo.year}년 ${result.birthInfo.month}월 ${result.birthInfo.day}일생\n` +
-        `🐴 ${result.pillars.year.animal}띠\n` +
-        `✨ ${result.interpretation.dayStem.name} (${result.interpretation.dayStem.symbol})\n` +
-        `🎯 키워드: ${result.interpretation.dayStem.keywords.join(', ')}\n\n` +
-        `나도 2026년 사주 보러가기 👇`,
-      url: window.location.origin,
+      text: `🐴 2026 병오년, 나의 사주 결과\n\n` +
+        `"${result.yearlyFortune.advice}"\n\n` +
+        `📅 ${result.birthInfo.year}년생 ${result.pillars.year.animal}띠\n` +
+        `✨ 올해 키워드: ${result.yearlyFortune.title}\n\n` +
+        `무료로 내 사주 보러가기 ⬇️`,
+      url: 'https://saju.uzu.kr',
     }
 
     // Web Share API 지원 확인 (주로 모바일)
