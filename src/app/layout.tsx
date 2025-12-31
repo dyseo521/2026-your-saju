@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: '2026 신년 사주 - 나의 병오년 운세는?',
     description: '2026년 병오년, 당신의 사주를 무료로 확인하세요. 불의 해, 새로운 시작을 위한 운세 가이드.',
     images: [{
-      url: '/og-image.png',
+      url: 'https://d274vs9s9nq40p.cloudfront.net/og-image.png',
       width: 1200,
       height: 630,
       alt: '2026 신년 사주 - 병오년 무료 사주풀이'
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '2026 신년 사주 - 병오년 무료 사주풀이',
     description: '2026년 병오년 신년 사주를 무료로 확인하세요',
-    images: ['/og-image.png']
+    images: ['https://d274vs9s9nq40p.cloudfront.net/og-image.png']
   },
   robots: {
     index: true,
